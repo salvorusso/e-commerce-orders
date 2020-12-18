@@ -13,12 +13,13 @@ import java.util.List;
 
 
 @RestController
+@RequestMapping("/orders")
 public class OrderController {
 
     @Autowired
     OrderRepository repo;
 
-    @GetMapping(path = "/orders/{id}")
+    @GetMapping(path = "/{id}")
     public ResponseEntity getOrderById(@PathVariable int id){
         Order o1 = repo.findById(id);
         if(o1 != null)
@@ -27,7 +28,7 @@ public class OrderController {
             return ResponseEntity.notFound().build();
     }
 
-    @GetMapping(path = "/orders")
+    @GetMapping(path = "")
     public ResponseEntity getOrders(){
         /*TO DO::   - implementare passaggio userID al metodo findAllById().
         *           - Implementare meccanismo di impaginazione per_Page
