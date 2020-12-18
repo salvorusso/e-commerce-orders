@@ -1,29 +1,44 @@
 package com.unict.dsbd.orders.order;
+import com.unict.dsbd.orders.product.Product;
 import org.springframework.data.annotation.Id;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+
+import java.util.List;
 
 
 public class Order {
         @Id
         public int id;
-        public String name;
-        public int quantity;
+        public double total;
+        public List<Product> products;
+        public String shippingAddress;
+        public String billingAddress;
+        public int userId;
+        public String extraArgs;
 
-    public Order(int id, String name, int quantity) {
+    public Order(int id, double total, List<Product> products, String shippingAddress, String billingAddress, int userId, String extraArgs) {
         this.id = id;
-        this.name = name;
-        this.quantity = quantity;
+        this.total = total;
+        this.products = products;
+        this.shippingAddress = shippingAddress;
+        this.billingAddress = billingAddress;
+        this.userId = userId;
+        this.extraArgs = extraArgs;
     }
 
     public Order() {
     }
 
-    public int getId()  {
-        return id;
+    @Override
+    public String toString() {
+        return "{" +
+                "id:" + id +
+                ", total:" + total +
+                ", products:" + products +
+                ", shippingAddress:'" + shippingAddress + '\'' +
+                ", billingAddress:'" + billingAddress + '\'' +
+                ", userId:" + userId +
+                ", extraArgs:'" + extraArgs + '\'' +
+                '}';
     }
 
     public Order setId(int id) {
@@ -31,30 +46,61 @@ public class Order {
         return this;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public Order setName(String name) {
-        this.name = name;
+    public Order setTotal(double total) {
+        this.total = total;
         return this;
     }
 
-    public int getnOrder() {
-        return quantity;
-    }
-
-    public Order setnOrder(int quantity) {
-        this.quantity = quantity;
+    public Order setProducts(List<Product> products) {
+        this.products = products;
         return this;
     }
 
-    @Override
-    public String toString() {
-        return "Order{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", nOrder=" + quantity +
-                '}';
+    public Order setShippingAddress(String shippingAddress) {
+        this.shippingAddress = shippingAddress;
+        return this;
+    }
+
+    public Order setBillingAddress(String billingAddress) {
+        this.billingAddress = billingAddress;
+        return this;
+    }
+
+    public Order setUserId(int userId) {
+        this.userId = userId;
+        return this;
+    }
+
+    public Order setExtraArgs(String extraArgs) {
+        this.extraArgs = extraArgs;
+        return this;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public double getTotal() {
+        return total;
+    }
+
+    public List<Product> getProducts() {
+        return products;
+    }
+
+    public String getShippingAddress() {
+        return shippingAddress;
+    }
+
+    public String getBillingAddress() {
+        return billingAddress;
+    }
+
+    public int getUserId() {
+        return userId;
+    }
+
+    public String getExtraArgs() {
+        return extraArgs;
     }
 }
