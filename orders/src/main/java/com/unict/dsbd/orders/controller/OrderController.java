@@ -33,38 +33,24 @@ public class OrderController {
             return ResponseEntity.notFound().build();
     }
 
-    @RequestMapping(path = "/orders"/*,params = "!pagination"*/)
-    public @ResponseBody ResponseEntity getOrders(){
-/*
-        TO DO:
-                - implementare passaggio userID al metodo findAllById().
-                
+/*TO Do:
+        -Implementare meccanismo passaggio user id
 */
 
-        ArrayList<Order> o1 = repo.findAllByUserId(1);
-
+    @GetMapping(path = "/orders")
+    public @ResponseBody ResponseEntity getOrdersPagination(@RequestParam(value = "per_page", required = false, defaultValue = "-1" ) final int per_page, @RequestParam(value = "page",required = false,defaultValue = "-1") final int page){
+        ArrayList<Order> o1;
+        if(per_page == -1 && page == -1)
+            o1 = repo.findAllByUserId(1);
+        else{
+            Pageable p1 = PageRequest.of(page,per_page);
+            o1 = repo.findAllByUserId(1, p1);
+        }
         if(o1 != null)
             return ResponseEntity.ok(o1);
         else
             return ResponseEntity.notFound().build();
     }
-
-/*
-
-    To Do:
-            -meotodo funzionante, cercare modo per fare funzionae entrambi i merodi
-
-    @GetMapping(path = "/orders",params = "pagination")
-    public @ResponseBody ResponseEntity getOrdersPagination(@RequestParam("per_page") final int per_page, @RequestParam("page") final int page){
-
-        Pageable p1 = PageRequest.of(page,per_page);
-        ArrayList<Order> o1 = repo.findAllByUserId(1, p1);
-        if(o1 != null)
-            return ResponseEntity.ok(o1);
-        else
-            return ResponseEntity.notFound().build();
-    }
-*/
 
 
     @RequestMapping(path="/insert")
