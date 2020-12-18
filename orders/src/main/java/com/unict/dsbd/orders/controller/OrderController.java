@@ -8,7 +8,10 @@ import com.unict.dsbd.orders.product.Product;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
+
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -41,12 +44,14 @@ public class OrderController {
     }
 
     @GetMapping(path = "")
-    public ResponseEntity<List<Order>> getOrders(){
-        /*TO DO::   - implementare passaggio userID al metodo findAllById().
-        *           - Implementare meccanismo di impaginazione per_Page
-        * */
-        ArrayList<Order> o1 = repo.findAllByUserId(1);
-
+    public ResponseEntity getOrdersPagination(@RequestParam(value = "per_page", required = false, defaultValue = "-1" ) final int per_page, @RequestParam(value = "page",required = false,defaultValue = "-1") final int page){
+        ArrayList<Order> o1;
+        if(per_page == -1 && page == -1)
+            o1 = repo.findAllByUserId(1);
+        else{
+            Pageable p1 = PageRequest.of(page,per_page);
+            o1 = repo.findAllByUserId(1, p1);
+        }
         if(o1 != null)
             return ResponseEntity.ok(o1);
         else
@@ -56,12 +61,14 @@ public class OrderController {
 
     @RequestMapping(path="/insert")
     public String testInsert(){
-        Product p1 = new Product(2,2);
+        int i=1;
         List<Product> l1= new ArrayList<Product>();
+        Product p1 = new Product(2,3);
         l1.add(p1);
-
-        Order o1 = new Order(2,1222.1,l1,"via milano","milano",1,"n/d");
-        repo.save(o1);
+        while(i<20) {
+            repo.save(new Order(i, i*2, l1, "via milano", "milano", 1, "n/d"));;
+            i++;
+        }
         return "salvataggio effetuato con successo";
     }
 }
