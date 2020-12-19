@@ -3,19 +3,20 @@ import com.unict.dsbd.orders.product.Product;
 import org.springframework.data.annotation.Id;
 
 import java.util.List;
+import java.util.UUID;
 
 
 public class Order {
         @Id
-        public int id;
-        public double total;
-        public List<Product> products;
-        public String shippingAddress;
-        public String billingAddress;
-        public int userId;
-        public String extraArgs;
+        private UUID id;
+        private double total;
+        private List<Product> products;
+        private String shippingAddress;
+        private String billingAddress;
+        private int userId;
+        private String extraArgs;
 
-    public Order(int id, double total, List<Product> products, String shippingAddress, String billingAddress, int userId, String extraArgs) {
+    public Order(UUID id, double total, List<Product> products, String shippingAddress, String billingAddress, int userId, String extraArgs) {
         this.id = id;
         this.total = total;
         this.products = products;
@@ -41,7 +42,7 @@ public class Order {
                 '}';
     }
 
-    public Order setId(int id) {
+    public Order setId(UUID id) {
         this.id = id;
         return this;
     }
@@ -76,7 +77,7 @@ public class Order {
         return this;
     }
 
-    public int getId() {
+    public UUID getId() {
         return id;
     }
 
