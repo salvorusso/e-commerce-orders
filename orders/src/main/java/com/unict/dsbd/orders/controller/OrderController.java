@@ -11,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -63,9 +65,27 @@ public class OrderController {
 
 
     @PostMapping(path="", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Order> newOrder(
-    		@RequestBody Order order){
-
+    public ResponseEntity<Object> newOrder(
+    		@RequestBody Order order,
+    		@RequestHeader HttpHeaders headers){
+    	
+		String userInfo = headers.getFirst("X-User-ID");
+		log.debug("userInfo: {}", userInfo);
+		
+		if(userInfo == null) {
+			String msg = "Missing X-User-ID Header";
+			log.error(msg);
+			return new ResponseEntity<>(msg, HttpStatus.BAD_REQUEST);	
+		}
+		
+		try {
+			order.setUserId(Integer.parseInt(userInfo));
+		} catch (NumberFormatException e) {
+			String msg = "X-User-ID malformed: " + userInfo;
+			log.error(msg);
+			return new ResponseEntity<>(msg, HttpStatus.BAD_REQUEST);
+		}
+		
     	log.info("newOrder {}", order);
     	order = repositoryServices.insertOrder(order);
     	log.debug("order successfully saved {}", order);
