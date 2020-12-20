@@ -33,14 +33,32 @@ public class OrderController {
 
     public static final Logger log = LoggerFactory.getLogger(OrderController.class);
     
-    @GetMapping(path = "/{id}")
-    public ResponseEntity<Order> getOrderById(@PathVariable UUID id){
-    	
-    	log.info("getOrderById: {}", id);
-    	
-        Order o1 = repo.findById(id);
-        if(o1 != null)
-            return ResponseEntity.ok(o1);
+    @GetMapping(path = "/{id}", produces =  MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Order> getOrderById(@PathVariable UUID id, @RequestHeader HttpHeaders headers){
+
+        int tmpUserIdGet = 0;
+        Order tmpOrder;
+        String userInfoGet = headers.getFirst("X-User-ID");
+
+        log.info("getOrderById: {}", id);
+        log.debug("userInfo: {}", userInfoGet);
+
+        try {
+            tmpUserIdGet = Integer.parseInt(userInfoGet);
+
+        } catch (NumberFormatException e) {
+            String msg = "X-User-ID malformed: " + userInfoGet;
+            log.error(msg);
+            return new ResponseEntity(msg, HttpStatus.BAD_REQUEST);
+        }
+
+    	if(tmpUserIdGet != 0)
+            tmpOrder = repo.findByIdAndUserId(id,tmpUserIdGet);
+    	else
+            tmpOrder = repo.findById(id);
+
+        if(tmpOrder != null)
+            return ResponseEntity.ok(tmpOrder);
         else {
         	log.error("getOrderById: Order {} Not Found", id);
         	 return ResponseEntity.notFound().build();
@@ -48,17 +66,46 @@ public class OrderController {
            
     }
 
-    @GetMapping(path = "")
-    public ResponseEntity<List<Order>> getOrdersPagination(@RequestParam(value = "per_page", required = false, defaultValue = "-1" ) final int per_page, @RequestParam(value = "page",required = false,defaultValue = "-1") final int page){
-        ArrayList<Order> o1;
+    @GetMapping(path = "", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<Order>> getOrdersPagination(@RequestParam(value = "per_page", required = false, defaultValue = "-1" ) final int per_page,
+                                                           @RequestParam(value = "page",required = false,defaultValue = "-1") final int page,
+                                                           @RequestHeader HttpHeaders headers){
+        ArrayList<Order> tmpOder = null;
+        int tmpUserId = 0;
+        String userInfoGet = headers.getFirst("X-User-ID");
+
+        log.debug("userInfo: {}", userInfoGet);
+
+        if(userInfoGet == null) {
+            String msg = "Missing X-User-ID Header";
+            log.error(msg);
+            return new ResponseEntity(msg, HttpStatus.BAD_REQUEST);
+        }
+
+        try {
+            tmpUserId = Integer.parseInt(userInfoGet);
+
+        } catch (NumberFormatException e) {
+            String msg = "X-User-ID malformed: " + userInfoGet;
+            log.error(msg);
+            return new ResponseEntity(msg, HttpStatus.BAD_REQUEST);
+        }
+
         if(per_page == -1 && page == -1)
-            o1 = repo.findAllByUserId(1);
+            if(tmpUserId != 0)
+                tmpOder = repo.findAllByUserId(tmpUserId);
+            else
+                tmpOder = (ArrayList<Order>) repo.findAll();
         else{
             Pageable p1 = PageRequest.of(page,per_page);
-            o1 = repo.findAllByUserId(1, p1);
+            if(tmpUserId != 0)
+                tmpOder = repo.findAllByUserId(tmpUserId, p1);
+            else
+                tmpOder =  new ArrayList<Order>(repo.findAll(p1).getContent());
         }
-        if(o1 != null)
-            return ResponseEntity.ok(o1);
+
+        if(tmpOder != null)
+            return ResponseEntity.ok(tmpOder);
         else
             return ResponseEntity.notFound().build();
     }
@@ -71,12 +118,14 @@ public class OrderController {
     	
 		String userInfo = headers.getFirst("X-User-ID");
 		log.debug("userInfo: {}", userInfo);
-		
+
 		if(userInfo == null) {
 			String msg = "Missing X-User-ID Header";
 			log.error(msg);
 			return new ResponseEntity<>(msg, HttpStatus.BAD_REQUEST);	
 		}
+
+
 		
 		try {
 			order.setUserId(Integer.parseInt(userInfo));
