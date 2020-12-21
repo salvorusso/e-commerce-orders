@@ -1,6 +1,7 @@
 package com.unict.dsbd.orders.controller;
 
 
+import com.unict.dsbd.orders.heartBeater.HeartBeat;
 import com.unict.dsbd.orders.order.Order;
 import com.unict.dsbd.orders.order.OrderRepository;
 import com.unict.dsbd.orders.services.RepositoryServices;
@@ -16,6 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.MediaTypeNotSupportedStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -111,6 +113,9 @@ public class OrderController {
     }
 
 
+
+
+
     @PostMapping(path="", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Object> newOrder(
     		@RequestBody Order order,
@@ -140,4 +145,13 @@ public class OrderController {
     	log.debug("order successfully saved {}", order);
     	return ResponseEntity.ok(order);
     }
+
+    /*
+    Decommentare questo metodo se si vuole testare il meccanismo di heartBeat!
+
+    @PostMapping(path = "/ping",produces = MediaType.APPLICATION_JSON_VALUE)
+    public String PostHeartBeatTest(@RequestBody String h1){
+        return h1;
+    }
+    */
 }
