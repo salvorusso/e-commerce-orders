@@ -1,6 +1,7 @@
 package com.unict.dsbd.orders.controller;
 
 
+import com.mongodb.client.MongoClient;
 import com.unict.dsbd.orders.heartBeater.HeartBeat;
 import com.unict.dsbd.orders.order.Order;
 import com.unict.dsbd.orders.order.OrderRepository;
@@ -29,7 +30,7 @@ public class OrderController {
 
     @Autowired
     OrderRepository repo;
-    
+
     @Autowired
     RepositoryServices repositoryServices;
 
@@ -144,14 +145,15 @@ public class OrderController {
     	order = repositoryServices.insertOrder(order);
     	log.debug("order successfully saved {}", order);
     	return ResponseEntity.ok(order);
+
     }
 
-    /*
+/*
     Decommentare questo metodo se si vuole testare il meccanismo di heartBeat!
+*/
 
-    @PostMapping(path = "/ping",produces = MediaType.APPLICATION_JSON_VALUE)
+/*    @PostMapping(path = "/ping",produces = MediaType.APPLICATION_JSON_VALUE)
     public String PostHeartBeatTest(@RequestBody String h1){
         return h1;
-    }
-    */
+    }*/
 }
