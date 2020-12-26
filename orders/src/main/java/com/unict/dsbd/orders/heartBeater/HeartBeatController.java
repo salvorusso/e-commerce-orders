@@ -8,8 +8,8 @@
 La richiesta post, se andata a buon fine, stamperà il risultato all'interno della console log.debug ogni 25 secondi.
 */
 
-
-/*package com.unict.dsbd.orders.heartBeater;
+/*
+package com.unict.dsbd.orders.heartBeater;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.BasicDBObjectBuilder;
@@ -23,12 +23,11 @@ import org.bson.BsonDocument;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.mongodb.MongoDatabaseUtils;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
+import org.springframework.http.*;
 
-import org.springframework.http.MediaType;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -43,32 +42,50 @@ import static com.unict.dsbd.orders.OrdersApplication.log;
 @RestController
 public class HeartBeatController {
 
-    private int mongoPort = 27017;
+    @Value("${spring.data.mongodb.host}")
+    private String mongoHost;
+
+
+    @Value("${spring.data.mongodb.port}")
+    private String mongoPort;
+
+    @Value("${server.host}")
+    private String serverHost;
+
+    @Value("${server.port}")
+    private String serverPort;
+
 
     @Scheduled(fixedRate = 25000)
     public void HeartBeat() {
         RestTemplate restTemplate = new RestTemplate();
-        String url = "http://127.0.0.1:9080/orders/ping";
 
         HeartBeat tmpHeartBeat = this.chekStatusServer();
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         HttpEntity<String> entity = new HttpEntity<String>(tmpHeartBeat.toString(), headers);
-        String response = restTemplate.postForObject(url, entity, String.class);
+        String response = restTemplate.postForObject("http://" + this.serverHost + ":" + this.serverPort + "/orders/ping", entity, String.class);
         log.debug("HeartBeat responce = " + response);
     }
 
-    private HeartBeat chekStatusServer(){
+    private HeartBeat chekStatusServer() {
 
         RestTemplate restTemplate = new RestTemplate();
 
         HttpEntity<String> entityMongoTest = new HttpEntity<String>("", new HttpHeaders());
         try {
-            restTemplate.getForObject("http://127.0.0.1:" + this.mongoPort , String.class, entityMongoTest);
+
+            ResponseEntity<String> result = restTemplate.exchange("http://" + this.mongoHost + ":" + this.mongoPort, HttpMethod.GET, entityMongoTest, String.class);
+
+            if (result.getStatusCode() == HttpStatus.OK)
+                return new HeartBeat("up", "up");
+            else
+                return new HeartBeat("up", "down");
+
         } catch (org.springframework.web.client.ResourceAccessException e) {
             return new HeartBeat("up", "down");
         }
-        return new HeartBeat("up", "up");
+
     }
 
 
