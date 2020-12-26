@@ -1,6 +1,7 @@
 package com.unict.dsbd.orders.controller;
 
 
+import com.google.gson.Gson;
 import com.unict.dsbd.orders.order.Order;
 import com.unict.dsbd.orders.order.OrderRepository;
 import com.unict.dsbd.orders.services.RepositoryServices;
@@ -15,6 +16,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -30,8 +32,16 @@ public class OrderController {
     
     @Autowired
     RepositoryServices repositoryServices;
+    
+    @Autowired
+    private KafkaTemplate<String, String> kafkaTemplate;
 
     public static final Logger log = LoggerFactory.getLogger(OrderController.class);
+    
+    private void sendMessage(String topicName,String msg) {
+    	log.debug("Publishing new message in topic {}, msg {}", topicName, msg);
+        kafkaTemplate.send(topicName, msg);
+    }
     
     @GetMapping(path = "/{id}")
     public ResponseEntity<Order> getOrderById(@PathVariable UUID id){
@@ -88,6 +98,7 @@ public class OrderController {
 		
     	log.info("newOrder {}", order);
     	order = repositoryServices.insertOrder(order);
+    	sendMessage("orders", new Gson().toJson(order));
     	log.debug("order successfully saved {}", order);
     	return ResponseEntity.ok(order);
     }
