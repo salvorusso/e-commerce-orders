@@ -9,7 +9,7 @@ import com.unict.dsbd.orders.services.RepositoryServices;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
@@ -28,19 +28,27 @@ import java.util.UUID;
 public class OrderController {
 
     @Autowired
-    OrderRepository repo;
+    private OrderRepository repo;
     
     @Autowired
-    RepositoryServices repositoryServices;
+    private RepositoryServices repositoryServices;
     
     @Autowired
     private KafkaTemplate<String, String> kafkaTemplate;
 
     public static final Logger log = LoggerFactory.getLogger(OrderController.class);
     
-    private void sendMessage(String topicName,String msg) {
-    	log.debug("Publishing new message in topic {}, msg {}", topicName, msg);
-        kafkaTemplate.send(topicName, msg);
+    @Value("${kafkaMainTopic}")
+    private String mainTopic;
+    
+    @Value("${kafkaNotificationTopic}")
+    private String notificationTopic;
+    
+    private String ORDER_COMPLETED = "order_completed";
+    
+    private void sendMessage(String topicName, String key, String msg) {
+    	log.info("Publishing new message in topic: {}, key: {}, msg: {}", topicName, key, msg);
+        kafkaTemplate.send(topicName, key, msg);
     }
     
     @GetMapping(path = "/{id}")
@@ -98,8 +106,10 @@ public class OrderController {
 		
     	log.info("newOrder {}", order);
     	order = repositoryServices.insertOrder(order);
-    	sendMessage("orders", new Gson().toJson(order));
-    	log.debug("order successfully saved {}", order);
+    	String message = new Gson().toJson(order);
+    	sendMessage(mainTopic, ORDER_COMPLETED, message);
+    	sendMessage(notificationTopic, ORDER_COMPLETED, message);
+    	log.debug("order successfully saved: {}", order);
     	return ResponseEntity.ok(order);
     }
 }
