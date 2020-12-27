@@ -16,6 +16,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.web.bind.annotation.*;
 
@@ -111,5 +112,10 @@ public class OrderController {
     	sendMessage(notificationTopic, ORDER_COMPLETED, message);
     	log.debug("order successfully saved: {}", order);
     	return ResponseEntity.ok(order);
+    }
+    
+    @KafkaListener(topics = "orders", groupId = "ordermanager")
+    public void orderValidation(String message) {
+        log.info("Received Message in group ordermanager: " + message);
     }
 }
