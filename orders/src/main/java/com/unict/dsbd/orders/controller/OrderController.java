@@ -18,6 +18,9 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.support.KafkaHeaders;
+import org.springframework.messaging.handler.annotation.Header;
+import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -115,7 +118,11 @@ public class OrderController {
     }
     
     @KafkaListener(topics = "orders", groupId = "ordermanager")
-    public void orderValidation(String message) {
-        log.info("Received Message in group ordermanager: " + message);
+    public void orderValidation(
+    		@Header(name = KafkaHeaders.RECEIVED_MESSAGE_KEY) String key,
+    		@Payload String message) {
+    	
+        log.info("Received Message in group ordermanager: key:{}, message:{} ", key, message);
+        
     }
 }
