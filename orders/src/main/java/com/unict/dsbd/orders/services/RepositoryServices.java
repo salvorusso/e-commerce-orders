@@ -22,4 +22,9 @@ public class RepositoryServices {
 		return order;
 		
 	}
+	
+	public Order updateOrder(Order order) {
+		order = repository.save(order);
+		return order;
+	}
 }

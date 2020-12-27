@@ -4,6 +4,7 @@ package com.unict.dsbd.orders.controller;
 import com.google.gson.Gson;
 import com.unict.dsbd.orders.order.Order;
 import com.unict.dsbd.orders.order.OrderRepository;
+import com.unict.dsbd.orders.order.OrderValidationRequest;
 import com.unict.dsbd.orders.services.RepositoryServices;
 
 import org.slf4j.Logger;
@@ -23,6 +24,7 @@ import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -48,7 +50,9 @@ public class OrderController {
     @Value("${kafkaNotificationTopic}")
     private String notificationTopic;
     
-    private String ORDER_COMPLETED = "order_completed";
+    private final String ORDER_COMPLETED = "order_completed";
+    private final String ORDER_VALIDATION = "order_validation";
+    private final String ABORT_STATUS = "Abort";
     
     private void sendMessage(String topicName, String key, String msg) {
     	log.info("Publishing new message in topic: {}, key: {}, msg: {}", topicName, key, msg);
@@ -122,7 +126,24 @@ public class OrderController {
     		@Header(name = KafkaHeaders.RECEIVED_MESSAGE_KEY) String key,
     		@Payload String message) {
     	
-        log.info("Received Message in group ordermanager: key:{}, message:{} ", key, message);
+    	if(key.equals(ORDER_VALIDATION)) {
+    		log.info("Received Message: key:{}, message:{} ", key, message);
+    		OrderValidationRequest validationRequest = new Gson().fromJson(message, OrderValidationRequest.class);
+    		
+    		Order order = repo.findById(validationRequest.getOrderId());
+    		if (order == null) {
+    			log.error("Order not found");
+    			return;
+    		}
+    		
+    		if(validationRequest.getStatus() != 0) {
+    			log.info("Status code: {} ; Setting Order {} status to Abort", 
+    					validationRequest.getStatus(), validationRequest.getOrderId());
+    			order.setStatus(ABORT_STATUS);
+    			order = repositoryServices.updateOrder(order);
+    			log.debug("{}", order);
+    		}
+    	}  
         
     }
 }
