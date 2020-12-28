@@ -15,9 +15,9 @@ public class Order {
         private String billingAddress;
         private int userId;
         private String status;
-        private String extraArgs;
+        private ExtraArgs extraArgs;
 
-    public Order(UUID id, double total, List<Product> products, String shippingAddress, String billingAddress, int userId, String extraArgs) {
+    public Order(UUID id, double total, List<Product> products, String shippingAddress, String billingAddress, int userId, ExtraArgs extraArgs) {
         this.id = id;
         this.total = total;
         this.products = products;
@@ -61,7 +61,7 @@ public class Order {
         return this;
     }
 
-    public Order setExtraArgs(String extraArgs) {
+    public Order setExtraArgs(ExtraArgs extraArgs) {
         this.extraArgs = extraArgs;
         return this;
     }
@@ -98,7 +98,7 @@ public class Order {
         return userId;
     }
 
-    public String getExtraArgs() {
+    public ExtraArgs getExtraArgs() {
         return extraArgs;
     }
 
