@@ -29,10 +29,7 @@ public class RepositoryServices {
 	}
 	
 	public Order findOrderByIdAndUser(UUID id, int userId) {
-		Order order = repository.findById(id);
-		if(order.getUserId() != userId)
-			return null;
-		
+		Order order = repository.findByIdAndUserId(id, userId);
 		return order;
 	}
 }
