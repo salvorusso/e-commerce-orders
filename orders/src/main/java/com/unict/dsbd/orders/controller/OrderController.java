@@ -2,7 +2,9 @@ package com.unict.dsbd.orders.controller;
 
 
 import com.google.gson.Gson;
+import com.unict.dsbd.orders.order.ExtraArgs;
 import com.unict.dsbd.orders.order.Order;
+import com.unict.dsbd.orders.order.OrderPaymentRequest;
 import com.unict.dsbd.orders.order.OrderRepository;
 import com.unict.dsbd.orders.order.OrderValidationRequest;
 import com.unict.dsbd.orders.services.RepositoryServices;
@@ -50,9 +52,20 @@ public class OrderController {
     @Value("${kafkaNotificationTopic}")
     private String notificationTopic;
     
+    @Value("${kafkaInvoicingTopic}")
+    private String invoicingTopic;
+    
+    @Value("${kafkaLogTopic}")
+    private String logTopic; 
+    
     private final String ORDER_COMPLETED = "order_completed";
     private final String ORDER_VALIDATION = "order_validation";
+    private final String ORDER_PAID = "order_paid";
+    private final String ORDER_VALIDATION_FAILURE = "order_paid_validation_failure";
     private final String ABORT_STATUS = "Abort";
+    private final String PAID_STATUS = "Paid";
+    private final String ORDER_NOT_FOUND = "ORDER_NOT_FOUND";
+    private final String WRONG_AMOUNT = "WRONG_AMOUNT_PAID";
     
     private void sendMessage(String topicName, String key, String msg) {
     	log.info("Publishing new message in topic: {}, key: {}, msg: {}", topicName, key, msg);
@@ -126,8 +139,8 @@ public class OrderController {
     		@Header(name = KafkaHeaders.RECEIVED_MESSAGE_KEY) String key,
     		@Payload String message) {
     	
+    	log.info("Received Message: key:{}, message:{} ", key, message);
     	if(key.equals(ORDER_VALIDATION)) {
-    		log.info("Received Message: key:{}, message:{} ", key, message);
     		OrderValidationRequest validationRequest = new Gson().fromJson(message, OrderValidationRequest.class);
     		
     		Order order = repo.findById(validationRequest.getOrderId());
@@ -143,7 +156,43 @@ public class OrderController {
     			order = repositoryServices.updateOrder(order);
     			log.debug("{}", order);
     		}
-    	}  
+    	}else if(key.equals(ORDER_PAID)){
+    		OrderPaymentRequest paymentRequest = new Gson().fromJson(message, OrderPaymentRequest.class);
+    		
+    		Order order = repositoryServices.findOrderByIdAndUser(paymentRequest.getOrderId(), paymentRequest.getUserId());
+    		String msg = "";
+    		if(order == null) {
+    			log.error("Order {} not found for UserId {}", paymentRequest.getOrderId(), paymentRequest.getUserId());
+    			msg = ORDER_NOT_FOUND;
+    			ExtraArgs extraArgs = new ExtraArgs(msg);
+    			paymentRequest.setExtraArgs(extraArgs);
+    	    	String errorMessage = new Gson().toJson(paymentRequest);
+    	    	sendMessage(logTopic, ORDER_VALIDATION_FAILURE, errorMessage);
+    	    	return;
+    		}
+    		
+    		if(paymentRequest.getAmountPaid() != order.getTotal()) {
+    			log.error("Order total {}, amount paid {}", order.getTotal(), paymentRequest.getAmountPaid());
+    			msg = WRONG_AMOUNT;
+    			ExtraArgs extraArgs = new ExtraArgs(msg);
+    			paymentRequest.setExtraArgs(extraArgs);
+    			String errorMessage = new Gson().toJson(paymentRequest);
+    			sendMessage(logTopic, ORDER_VALIDATION_FAILURE, errorMessage);
+    			
+    			order.setStatus(ABORT_STATUS);
+    			order = repositoryServices.updateOrder(order);
+    			return;
+    		}
+    		
+    		
+    		log.info("Setting Order {} status to Paid", order.getId());
+    		order.setStatus(PAID_STATUS);
+			order = repositoryServices.updateOrder(order);
+			log.debug("{}", order);
+			String successMessage = new Gson().toJson(paymentRequest);
+			sendMessage(notificationTopic, ORDER_PAID, successMessage);
+			sendMessage(invoicingTopic, ORDER_PAID, successMessage);
+    	}
         
     }
 }

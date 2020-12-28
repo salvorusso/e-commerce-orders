@@ -27,4 +27,12 @@ public class RepositoryServices {
 		order = repository.save(order);
 		return order;
 	}
+	
+	public Order findOrderByIdAndUser(UUID id, int userId) {
+		Order order = repository.findById(id);
+		if(order.getUserId() != userId)
+			return null;
+		
+		return order;
+	}
 }
