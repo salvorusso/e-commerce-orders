@@ -249,6 +249,9 @@ public class OrderController {
     		
     		log.info("Setting Order {} status to Paid", order.getId());
     		order.setStatus(PAID_STATUS);
+    		if(order.getExtraArgs()!=null)
+    			order.getExtraArgs().setError("");
+    		
 			order = repositoryServices.updateOrder(order);
 			log.debug("{}", order);
 			String successMessage = new Gson().toJson(paymentRequest);
