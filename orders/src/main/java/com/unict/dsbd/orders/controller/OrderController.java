@@ -241,6 +241,7 @@ public class OrderController {
     			sendMessage(logTopic, ORDER_VALIDATION_FAILURE, errorMessage);
     			
     			order.setStatus(ABORT_STATUS);
+    			order.setExtraArgs(extraArgs);
     			order = repositoryServices.updateOrder(order);
     			return;
     		}
