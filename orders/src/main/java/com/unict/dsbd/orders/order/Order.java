@@ -14,6 +14,7 @@ public class Order {
         private String shippingAddress;
         private String billingAddress;
         private int userId;
+        private String status;
         private String extraArgs;
 
     public Order(UUID id, double total, List<Product> products, String shippingAddress, String billingAddress, int userId, String extraArgs) {
@@ -29,18 +30,6 @@ public class Order {
     public Order() {
     }
 
-    @Override
-    public String toString() {
-        return "{" +
-                "id:" + id +
-                ", total:" + total +
-                ", products:" + products +
-                ", shippingAddress:'" + shippingAddress + '\'' +
-                ", billingAddress:'" + billingAddress + '\'' +
-                ", userId:" + userId +
-                ", extraArgs:'" + extraArgs + '\'' +
-                '}';
-    }
 
     public Order setId(UUID id) {
         this.id = id;
@@ -77,7 +66,15 @@ public class Order {
         return this;
     }
 
-    public UUID getId() {
+    public String getStatus() {
+		return status;
+	}
+
+	public void setStatus(String status) {
+		this.status = status;
+	}
+
+	public UUID getId() {
         return id;
     }
 
@@ -104,4 +101,29 @@ public class Order {
     public String getExtraArgs() {
         return extraArgs;
     }
+
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("Order [id=");
+		builder.append(id);
+		builder.append(", total=");
+		builder.append(total);
+		builder.append(", products=");
+		builder.append(products);
+		builder.append(", shippingAddress=");
+		builder.append(shippingAddress);
+		builder.append(", billingAddress=");
+		builder.append(billingAddress);
+		builder.append(", userId=");
+		builder.append(userId);
+		builder.append(", status=");
+		builder.append(status);
+		builder.append(", extraArgs=");
+		builder.append(extraArgs);
+		builder.append("]");
+		return builder.toString();
+	}
+    
+    
 }
