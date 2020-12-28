@@ -134,7 +134,7 @@ public class OrderController {
     	return ResponseEntity.ok(order);
     }
     
-    @KafkaListener(topics = "orders", groupId = "ordermanager")
+    @KafkaListener(topics = "${kafkaMainTopic}")
     public void orderValidation(
     		@Header(name = KafkaHeaders.RECEIVED_MESSAGE_KEY) String key,
     		@Payload String message) {
