@@ -26,7 +26,7 @@ public class KafkaTopicConfig {
         return TopicBuilder
         		.name(mainTopic)
         		.replicas(1)
-        		.partitions(1)
+        		.partitions(10)
         		.build();
     }
     
@@ -35,17 +35,25 @@ public class KafkaTopicConfig {
         return TopicBuilder
         		.name(notificationTopic)
         		.replicas(1)
-        		.partitions(1)
+        		.partitions(10)
         		.build();
     }
     
     @Bean
     public NewTopic invoicingTopic() {
-    	return TopicBuilder.name(invoicingTopic).build();
+    	return TopicBuilder
+    			.name(invoicingTopic)
+    			.replicas(1)
+        		.partitions(10)
+    			.build();
     }
     
     @Bean
     public NewTopic loggingTopig() {
-    	return TopicBuilder.name(logTopic).build();
+    	return TopicBuilder
+    			.name(logTopic)
+    			.replicas(1)
+        		.partitions(20)
+    			.build();
     }
 }
