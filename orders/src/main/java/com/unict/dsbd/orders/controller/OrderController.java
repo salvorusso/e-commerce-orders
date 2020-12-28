@@ -35,9 +35,9 @@ public class OrderController {
     RepositoryServices repositoryServices;
 
     public static final Logger log = LoggerFactory.getLogger(OrderController.class);
-    
-    @GetMapping(path = "/{id}", produces =  MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Order> getOrderById(@PathVariable UUID id, @RequestHeader HttpHeaders headers){
+
+    @GetMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Order> getOrderById(@PathVariable UUID id, @RequestHeader HttpHeaders headers) {
 
         int tmpUserIdGet = 0;
         Order tmpOrder;
@@ -55,31 +55,31 @@ public class OrderController {
             return new ResponseEntity(msg, HttpStatus.BAD_REQUEST);
         }
 
-    	if(tmpUserIdGet != 0)
-            tmpOrder = repo.findByIdAndUserId(id,tmpUserIdGet);
-    	else
+        if (tmpUserIdGet != 0)
+            tmpOrder = repo.findByIdAndUserId(id, tmpUserIdGet);
+        else
             tmpOrder = repo.findById(id);
 
-        if(tmpOrder != null)
+        if (tmpOrder != null)
             return ResponseEntity.ok(tmpOrder);
         else {
-        	log.error("getOrderById: Order {} Not Found", id);
-        	 return ResponseEntity.notFound().build();
+            log.error("getOrderById: Order {} Not Found", id);
+            return ResponseEntity.notFound().build();
         }
-           
+
     }
 
     @GetMapping(path = "", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<Order>> getOrdersPagination(@RequestParam(value = "per_page", required = false, defaultValue = "-1" ) final int per_page,
-                                                           @RequestParam(value = "page",required = false,defaultValue = "-1") final int page,
-                                                           @RequestHeader HttpHeaders headers){
+    public ResponseEntity<List<Order>> getOrdersPagination(@RequestParam(value = "per_page", required = false, defaultValue = "-1") final int per_page,
+                                                           @RequestParam(value = "page", required = false, defaultValue = "-1") final int page,
+                                                           @RequestHeader HttpHeaders headers) {
         ArrayList<Order> tmpOder = null;
         int tmpUserId = 0;
         String userInfoGet = headers.getFirst("X-User-ID");
 
         log.debug("userInfo: {}", userInfoGet);
 
-        if(userInfoGet == null) {
+        if (userInfoGet == null) {
             String msg = "Missing X-User-ID Header";
             log.error(msg);
             return new ResponseEntity(msg, HttpStatus.BAD_REQUEST);
@@ -94,59 +94,56 @@ public class OrderController {
             return new ResponseEntity(msg, HttpStatus.BAD_REQUEST);
         }
 
-        if(per_page == -1 && page == -1)
-            if(tmpUserId != 0)
+        if (per_page == -1 && page == -1)
+            if (tmpUserId != 0)
                 tmpOder = repo.findAllByUserId(tmpUserId);
             else
                 tmpOder = (ArrayList<Order>) repo.findAll();
-        else{
-            Pageable p1 = PageRequest.of(page,per_page);
-            if(tmpUserId != 0)
+        else {
+            Pageable p1 = PageRequest.of(page, per_page);
+            if (tmpUserId != 0)
                 tmpOder = repo.findAllByUserId(tmpUserId, p1);
             else
-                tmpOder =  new ArrayList<Order>(repo.findAll(p1).getContent());
+                tmpOder = new ArrayList<Order>(repo.findAll(p1).getContent());
         }
 
-        if(tmpOder != null)
+        if (tmpOder != null)
             return ResponseEntity.ok(tmpOder);
         else
             return ResponseEntity.notFound().build();
     }
 
 
-
-
-
-    @PostMapping(path="", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(path = "", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Object> newOrder(
-    		@RequestBody Order order,
-    		@RequestHeader HttpHeaders headers){
-    	
-		String userInfo = headers.getFirst("X-User-ID");
-		log.debug("userInfo: {}", userInfo);
+            @RequestBody Order order,
+            @RequestHeader HttpHeaders headers) {
 
-		if(userInfo == null) {
-			String msg = "Missing X-User-ID Header";
-			log.error(msg);
-			return new ResponseEntity<>(msg, HttpStatus.BAD_REQUEST);	
-		}
+        String userInfo = headers.getFirst("X-User-ID");
+        log.debug("userInfo: {}", userInfo);
+
+        if (userInfo == null) {
+            String msg = "Missing X-User-ID Header";
+            log.error(msg);
+            return new ResponseEntity<>(msg, HttpStatus.BAD_REQUEST);
+        }
 
 
-		
-		try {
-			order.setUserId(Integer.parseInt(userInfo));
-		} catch (NumberFormatException e) {
-			String msg = "X-User-ID malformed: " + userInfo;
-			log.error(msg);
-			return new ResponseEntity<>(msg, HttpStatus.BAD_REQUEST);
-		}
-		
-    	log.info("newOrder {}", order);
-    	order = repositoryServices.insertOrder(order);
-    	log.debug("order successfully saved {}", order);
-    	return ResponseEntity.ok(order);
+        try {
+            order.setUserId(Integer.parseInt(userInfo));
+        } catch (NumberFormatException e) {
+            String msg = "X-User-ID malformed: " + userInfo;
+            log.error(msg);
+            return new ResponseEntity<>(msg, HttpStatus.BAD_REQUEST);
+        }
+
+        log.info("newOrder {}", order);
+        order = repositoryServices.insertOrder(order);
+        log.debug("order successfully saved {}", order);
+        return ResponseEntity.ok(order);
 
     }
+
 
 /*
     Decommentare questo metodo se si vuole testare il meccanismo di heartBeat!
@@ -155,5 +152,5 @@ public class OrderController {
 /*    @PostMapping(path = "/ping",produces = MediaType.APPLICATION_JSON_VALUE)
     public String PostHeartBeatTest(@RequestBody String h1){
         return h1;
-    }
-}*/
+    }*/
+}
