@@ -17,6 +17,7 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import com.google.gson.Gson;
@@ -69,4 +70,29 @@ public class OrdersExceptionHandler extends ResponseEntityExceptionHandler {
 		return handleExceptionInternal(ex, error, 
 				new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR, webRequest);
 	}
+	
+	@ExceptionHandler(value= { ResponseStatusException.class })
+	protected ResponseEntity<Object> requestError(			
+			ResponseStatusException ex, 
+			HttpServletRequest servletRequest, 
+			WebRequest webRequest){
+
+		CustomErrorMessage error = new CustomErrorMessage();
+		error.setTimestamp(Instant.now().getEpochSecond());
+		error.setSourceIp(servletRequest.getRemoteAddr());
+		error.setService(serviceName);
+		error.setRequest(servletRequest.getRequestURI().concat(" ").concat(servletRequest.getMethod()));
+
+		error.setError(ex.getStatus().toString());
+		
+    	String errorMessage = new Gson().toJson(error);
+    	sendMessage(logTopic, HTTP_ERRORS, errorMessage);
+    	
+		log.error("OrdersExceptionHandler: {} Error: {}", ex.getStatus(), ex.getMessage());
+		ex.printStackTrace();
+		return handleExceptionInternal(ex, ex.getReason(), 
+				new HttpHeaders(), ex.getStatus(), webRequest);
+		
+	}
+	
 }

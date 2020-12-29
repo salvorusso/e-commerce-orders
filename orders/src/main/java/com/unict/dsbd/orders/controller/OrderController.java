@@ -28,6 +28,7 @@ import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.MediaTypeNotSupportedStatusException;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -91,7 +92,10 @@ public class OrderController {
         } catch (NumberFormatException e) {
             String msg = "X-User-ID malformed: " + userInfoGet;
             log.error(msg);
-            return new ResponseEntity(msg, HttpStatus.BAD_REQUEST);
+            //return new ResponseEntity(msg, HttpStatus.BAD_REQUEST);
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST, msg, e);
+              
         }
 
         if (tmpUserIdGet != 0)
