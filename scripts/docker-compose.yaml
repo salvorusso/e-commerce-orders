@@ -22,3 +22,13 @@ services:
       - 9092:9092
     depends_on: 
       - zookeeper
+  
+  mongodb:
+    image: mongo:4.2
+    volumes:
+      - mongodb_data:/data/db
+    ports:
+      - 27017:27017
+  
+volumes: 
+  mongodb_data:
