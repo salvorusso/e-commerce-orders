@@ -92,7 +92,7 @@ public class OrderController {
         } catch (NumberFormatException e) {
             String msg = "X-User-ID malformed: " + userInfoGet;
             log.error(msg);
-            //return new ResponseEntity(msg, HttpStatus.BAD_REQUEST);
+
             throw new ResponseStatusException(
                     HttpStatus.BAD_REQUEST, msg, e);
               
@@ -110,8 +110,10 @@ public class OrderController {
         if(o1 != null)
             return ResponseEntity.ok(o1);
         else {
-            log.error("getOrderById: Order {} Not Found", id);
-            return ResponseEntity.notFound().build();
+            String msg = "getOrderById: Order " + id + " Not Found";
+            log.error(msg);
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, msg, new NullPointerException());
+
         }
 
     }
@@ -129,7 +131,8 @@ public class OrderController {
         if (userInfoGet == null) {
             String msg = "Missing X-User-ID Header";
             log.error(msg);
-            return new ResponseEntity(msg, HttpStatus.BAD_REQUEST);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, msg);
+
         }
 
         try {
@@ -138,7 +141,8 @@ public class OrderController {
         } catch (NumberFormatException e) {
             String msg = "X-User-ID malformed: " + userInfoGet;
             log.error(msg);
-            return new ResponseEntity(msg, HttpStatus.BAD_REQUEST);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, msg, e);
+
         }
 
         if (per_page == -1 && page == -1)
@@ -154,10 +158,13 @@ public class OrderController {
                 tmpOder = new ArrayList<Order>(repo.findAll(p1).getContent());
         }
 
-        if (tmpOder != null)
+        if (tmpOder != null && tmpOder.stream().count() != 0)
             return ResponseEntity.ok(tmpOder);
-        else
-            return ResponseEntity.notFound().build();
+        else {
+            String msg = "No order for X-User-ID " + tmpUserId;
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, msg);
+        }
+
     }
 
 /*
@@ -179,7 +186,7 @@ public class OrderController {
 		if(userInfo == null) {
 			String msg = "Missing X-User-ID Header";
 			log.error(msg);
-			return new ResponseEntity<>(msg, HttpStatus.BAD_REQUEST);	
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, msg);
 		}
 		
 		try {
@@ -187,7 +194,7 @@ public class OrderController {
 		} catch (NumberFormatException e) {
 			String msg = "X-User-ID malformed: " + userInfo;
 			log.error(msg);
-			return new ResponseEntity<>(msg, HttpStatus.BAD_REQUEST);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, msg, e);
 		}
 		
     	log.info("newOrder {}", order);
