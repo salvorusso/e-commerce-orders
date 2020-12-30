@@ -163,10 +163,10 @@ public class OrderController {
 /*
     Decommentare questo metodo se si vuole testare il meccanismo di heartBeat!
 */
-/*    @PostMapping(path = "/ping",produces = MediaType.APPLICATION_JSON_VALUE)
-    public String PostHeartBeatTest(@RequestBody String h1){
-        return h1;
-    }*/
+    @PostMapping(path = "/ping",produces = MediaType.APPLICATION_JSON_VALUE)
+    public String PostHeartBeatTest(@RequestBody String heartbeat){
+        return heartbeat;
+    }
 
     @PostMapping(path = "", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Object> newOrder(
