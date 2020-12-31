@@ -162,8 +162,10 @@ public class OrderController {
                 tmpOder = new ArrayList<Order>(repo.findAll(p1).getContent());
         }
 
-        if (tmpOder != null && tmpOder.stream().count() != 0)
+        if (tmpOder != null && tmpOder.stream().count() != 0) {
+        	log.debug("{} Orders found for User {}", tmpOder.stream().count(), userInfoGet);
             return ResponseEntity.ok(tmpOder);
+        }
         else {
             String msg = "No order for X-User-ID " + tmpUserId;
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, msg);
