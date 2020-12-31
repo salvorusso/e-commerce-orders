@@ -1,15 +1,9 @@
 package com.unict.dsbd.orders.controller;
 
 
-import com.mongodb.client.MongoClient;
-import com.unict.dsbd.orders.heartBeater.HeartBeat;
-import com.google.gson.Gson;
-import com.unict.dsbd.orders.order.ExtraArgs;
-import com.unict.dsbd.orders.order.Order;
-import com.unict.dsbd.orders.order.OrderPaymentRequest;
-import com.unict.dsbd.orders.order.OrderRepository;
-import com.unict.dsbd.orders.order.OrderValidationRequest;
-import com.unict.dsbd.orders.services.RepositoryServices;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,14 +20,24 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.Payload;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.MediaTypeNotSupportedStatusException;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import com.google.gson.Gson;
+import com.unict.dsbd.orders.order.ExtraArgs;
+import com.unict.dsbd.orders.order.Order;
+import com.unict.dsbd.orders.order.OrderNotFoundException;
+import com.unict.dsbd.orders.order.OrderPaymentRequest;
+import com.unict.dsbd.orders.order.OrderRepository;
+import com.unict.dsbd.orders.order.OrderValidationRequest;
+import com.unict.dsbd.orders.services.RepositoryServices;
 
 @RestController
 @RequestMapping("/orders")
@@ -112,7 +116,7 @@ public class OrderController {
         else {
             String msg = "getOrderById: Order " + id + " Not Found";
             log.error(msg);
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, msg, new NullPointerException());
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, msg, new OrderNotFoundException() );
 
         }
 
