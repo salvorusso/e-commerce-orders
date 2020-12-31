@@ -10,6 +10,7 @@ services:
 
   kafka:
     image: wurstmeister/kafka:2.11-2.0.0
+    restart: always
     environment: 
       KAFKA_BROKER_ID: 1 
       KAFKA_ADVERTISED_HOST_NAME: kafka
@@ -17,14 +18,36 @@ services:
       BROKER_ID_COMMAND: "hostname | cut -d'-' -f2"
       KAFKA_ZOOKEEPER_CONNECT: "zookeeper:2181"
       KAFKA_CREATE_TOPICS: "logging:20:1,notifications:10:1,invoicing:10:1,orders:10:1" 
-      KAFKA_LISTENERS: "PLAINTEXT://:9092"
+      KAFKA_LISTENERS: "PLAINTEXT://kafka:9092"
     ports: 
       - 9092:9092
     depends_on: 
       - zookeeper
   
+  ordermanager:
+    image: unict/ordermanager:1.0.0
+    restart: always
+    environment:
+      appVersion: 1.0.0 
+      spring_data_mongodb_host: mongodb
+      spring_data_mongodb_port: 27017
+      spring_data_mongodb_database: orders
+      spring_kafka_bootstrap-servers: "kafka:9092"
+      kafkaMainTopic: orders
+      kafkaNotificationTopic: notifications
+      kafkaInvoicingTopic: invoicing
+      kafkaLogTopic: logging
+      heartbeatHost: 127.0.0.1
+      heartbeatPort: 9080
+      heartbeatBasePath: "/orders/ping/"
+    ports:
+      - 9080:9080
+    depends_on: 
+      - mongodb
+
   mongodb:
     image: mongo:4.2
+    restart: always
     volumes:
       - mongodb_data:/data/db
     ports:

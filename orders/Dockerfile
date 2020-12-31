@@ -1,7 +1,7 @@
 FROM maven:3-jdk-8 as builder
 WORKDIR /app
 COPY . .
-RUN mvn package
+RUN mvn package -DskipTests
 
 FROM openjdk:8-jdk
 COPY --from=builder /app/target/orders-0.0.1-SNAPSHOT.jar ./ordermanager.jar
