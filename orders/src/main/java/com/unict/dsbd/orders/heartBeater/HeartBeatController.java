@@ -1,44 +1,22 @@
-/*
-
-                    +++     How To use this class   +++
-
-    - Decomentare metodo "PostHeartBeatTest" nel file "orderController"
-    - Decomentare tutte le righe di codice presente in questa classe
-
-La richiesta post, se andata a buon fine, stamperà il risultato all'interno della console log.debug ogni 25 secondi.
-*/
-/*
-
 package com.unict.dsbd.orders.heartBeater;
-
-import com.mongodb.BasicDBObject;
-import com.mongodb.BasicDBObjectBuilder;
-import com.mongodb.DBObject;
-import com.mongodb.client.MongoClient;
-import com.mongodb.client.MongoClientFactory;
-import com.mongodb.client.MongoClients;
-import com.mongodb.client.MongoDatabase;
-import com.unict.dsbd.orders.order.OrderRepository;
-import org.bson.BsonDocument;
-import org.bson.Document;
-import org.bson.conversions.Bson;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.mongodb.MongoDatabaseUtils;
-import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.http.*;
-
-import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Component;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.UriComponentsBuilder;
 
 import static com.unict.dsbd.orders.OrdersApplication.log;
 
 import javax.annotation.PostConstruct;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
 @Component
 @EnableScheduling
@@ -115,4 +93,4 @@ public class HeartBeatController {
 
 
 }
-*/
+
