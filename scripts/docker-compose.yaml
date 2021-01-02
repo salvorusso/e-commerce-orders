@@ -37,9 +37,9 @@ services:
       kafkaNotificationTopic: notifications
       kafkaInvoicingTopic: invoicing
       kafkaLogTopic: logging
-      heartbeatHost: 127.0.0.1
-      heartbeatPort: 9080
-      heartbeatBasePath: "/orders/ping/"
+      heartbeatHost: "${HEARTBEAT_HOST}"
+      heartbeatPort: "${HEARTBEAT_PORT}"
+      heartbeatBasePath: "${HEARTBEAT_PATH}"
     ports:
       - 9080:9080
     depends_on: 
