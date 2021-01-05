@@ -8,7 +8,6 @@ RUN pip install --upgrade pip
 RUN pip install kafka-python
 
 COPY kafka_producer_interactive.py .
-CMD python
 
 # to build/rebuild it:
 # docker build --no-cache -t unict/fake_producer:0.0.1 -f Dockerfile .
