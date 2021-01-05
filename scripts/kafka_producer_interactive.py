@@ -3,13 +3,13 @@
 from kafka import KafkaProducer 
 import json 
 """ 
-# Just a KafkaProducer for interactive testing purposes
+Just a KafkaProducer for interactive testing purposes
 Usage example:
     /code # bpython        
     bpython version 0.20.1 on top of Python 3.9.0 /usr/local/bin/python        
     >>> import kafka_producer_interactive as kpi        
-    >>> send = kpi.producer(topic='mailing')        
-    >>> send('myKey', value={'myKeyStr': 'asd'}) 
+    >>> send = kpi.producer(topic='orders')        
+    >>> send('order_validation', value={'myKeyStr': 'asd'}) 
 """
 def producer(broker='kafka:9092', topic='my-topic'): 
     p = KafkaProducer(bootstrap_servers=[broker], 
