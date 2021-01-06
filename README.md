@@ -78,3 +78,14 @@ value = {
 ```  
 If the error is of type _50x_ , _error_ contains the stack trace. 
 If the error is of type _40x_ , _error_ contains the raw http status code.
+
+### Healt-Check Strategy
+Order Service implements a custom healt-check strategy, _heart-beat like_. Periodically, it makes a `POST` request whit the following request body:
+``` 
+{  
+  "service": ordermanager, 
+  "serviceStatus": "up|down", 
+  "dbStatus": "up|down"
+}
+``` 
+The endpoint is customizable as an environment variable (For debugging reasons, the request is made to itself).
