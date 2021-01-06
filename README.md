@@ -24,9 +24,9 @@ Method | URI | Description | Parameters
 Requests must have the header  HTTP _**X-User-ID**_ . The userId 0 will represent an admin, any other userId will represent a generic user.
 
 ### Kafka Client
-He is also producer and consumer on the topic _orders_ of the following messages:
+Order Service is also producer and consumer on the topic _orders_ of the following messages:
 
-* When a new order is created successfully, this message is produced and forwarded on the topics _orders_ and _notifications_ :
+- When a new order is created successfully, this message is produced and forwarded on the topics _orders_ and _notifications_ :
 ```
 key = order_completed 
 value = {    
@@ -40,7 +40,7 @@ value = {
   }
 ```
 
-* When this message is consumed, if the _status_code_ received is not 0, the corresponding order status is set to _Abort_
+- When this message is consumed, if the _status_code_ received is not 0, the corresponding order status is set to _Abort_
 ```
 key = order_validation  
 value = {  
@@ -64,3 +64,17 @@ value = {
   }
 ```   
   
+### Error handling
+When a request fails and an exception is raised, the following kafka message is forwarded on the topic _logging_:
+```
+key = http_errors   
+value = {  
+  timestamp: UnixTimestamp
+  sourceIp: sourceIp,
+  service: ordermanager,
+  request: path + method,
+  error: {...}
+  }
+```  
+If the error is of type _50x_ , _error_ contains the stack trace. 
+If the error is of type _40x_ , _error_ contains the raw http status code.
