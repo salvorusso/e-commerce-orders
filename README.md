@@ -40,7 +40,7 @@ value = {
   }
 ```
 
-* When this message is consumed, if the _status_code_ received is not 0, the corresponding order status is set to _Abort_ :
+* When this message is consumed, if the _status_code_ received is not 0, the corresponding order status is set to _Abort_
 ```
 key = order_validation  
 value = {  
@@ -51,7 +51,9 @@ value = {
   }
 ```
 
-* When this message is consumed, it is verified that the triple orderId, userId, amountPaid exists. If it exists, the order status is set to _Paid_ and the same message is forwarded on the topics _notifications_ , _invoicing_. 
+- When this message is consumed, it is verified that the triple orderId, userId, amountPaid exists. If it exists, the order status is set to _Paid_ and the same message is forwarded on the topics _notifications_ , _invoicing_. Otherwise, the order status is set to _Abort_ , and the message is forwarded on the topic _logging_ whit _key = order_paid_validation_failure_ , and one of the     following _extraArgs_ :
+  - Order not found: ` extraArgs: {error: "ORDER_NOT_FOUND"} `
+  - Wrong amount paid: ` extraArgs: {error: "WRONG_AMOUNT_PAID"} `
 ```
 key = order_paid   
 value = {  
@@ -60,8 +62,5 @@ value = {
   amountPaid: amountPaid,
   extraArgs: {...}
   }
-  ``` 
-  Otherwise, the order status is set to _Abort_ , and the message is forwarded on the topic _logging_ whit _key = order_paid_validation_failure_ , and one of the following _extraArgs_ :
-  * Order not found: ` extraArgs: {error: "ORDER_NOT_FOUND"} `
-  * Wrong amount paid: ` extraArgs: {error: "WRONG_AMOUNT_PAID"} `
+```   
   
