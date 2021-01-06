@@ -13,6 +13,7 @@ docker-compose -p order-service -f docker-compose.yaml --env-file .env up -d
 Remember to customize _.env_ file properly.
 
 ## Order Service
+### REST API
 Order Service REST API supports following operations:
 Method | URI | Description | Parameters
 --- | --- | --- | --- 
@@ -21,3 +22,46 @@ Method | URI | Description | Parameters
 `GET` | */orders/{id}* | Returns a specific order based on its id | UUID id
 
 Requests must have the header  HTTP _**X-User-ID**_ . The userId 0 will represent an admin, any other userId will represent a generic user.
+
+### Kafka Client
+He is also producer and consumer on the topic _orders_ of the following messages:
+
+* When a new order is created successfully, this message is produced and forwarded on the topics _orders_ and _notifications_ :
+```
+key = order_completed 
+value = {    
+  orderId: id,   
+  products: [ { product_id: quantity }, "..." ],    
+  total: amount,    
+  shippingAddress: {...},    
+  billingAddress: {...},    
+  userId: :id,    
+  extraArgs: {} 
+  }
+```
+
+* When this message is consumed, if the _status_code_ received is not 0, the corresponding order status is set to _Abort_ :
+```
+key = order_validation  
+value = {  
+  timestamp: UnixTimestamp
+  orderId: id,
+  status: status_code,
+  extraArgs: {}
+  }
+```
+
+* When this message is consumed, it is verified that the triple orderId, userId, amountPaid exists. If it exists, the order status is set to _Paid_ and the same message is forwarded on the topics _notifications_ , _invoicing_. 
+```
+key = order_paid   
+value = {  
+  timestamp: UnixTimestamp
+  userId: userId,
+  amountPaid: amountPaid,
+  extraArgs: {...}
+  }
+  ``` 
+  Otherwise, the order status is set to _Abort_ , and the message is forwarded on the topic _logging_ whit _key = order_paid_validation_failure_ , and one of the following _extraArgs_ :
+  * Order not found: ` extraArgs: {error: "ORDER_NOT_FOUND"} `
+  * Wrong amount paid: ` extraArgs: {error: "WRONG_AMOUNT_PAID"} `
+  
