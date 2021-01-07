@@ -88,4 +88,16 @@ Order Service implements a custom healt-check strategy, _heart-beat like_. Perio
   "dbStatus": "up|down"
 }
 ``` 
-The endpoint is customizable as an environment variable (For debugging reasons, the request is made to itself).
+The endpoint is customizable as an environment variable (For tests reasons, the request is made to itself).
+
+## Test and debug fake Kafka Producer
+For testing and debugging purposes, it is useful to have a _fake producer_ to populate topics whit messages. In the _scripts_ folder you can find a Dockerfile to build an interactive python environment, to use an utility script: `kafka_producer_interactive.py`. Using the option `--network` you can launch it inside your docker network.
+#### How to build and run it
+``` 
+docker build --no-cache -t unict/fake_producer:0.0.1 -f Dockerfile .
+
+docker run -it --network order-service_default unict/fake_producer:0.0.1
+    >>> import kafka_producer_interactive as kpi        
+    >>> send = kpi.producer(topic='orders')        
+    >>> send('order_validation', value={'myStr': 'myValue'}) 
+``` 
