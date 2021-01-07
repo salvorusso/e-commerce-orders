@@ -3,6 +3,7 @@ package com.unict.dsbd.orders.heartBeater;
 import static com.unict.dsbd.orders.OrdersApplication.log;
 
 import javax.annotation.PostConstruct;
+import javax.swing.text.html.parser.Parser;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -38,6 +39,7 @@ public class HeartBeatController {
     @Value("${heartbeatBasePath}")
     private String heartbeatBasePath;
 
+
     private RestTemplate restTemplate = null;
     private String mongoEndpoint = null;
     private String heartbeatEndpoint = null;
@@ -59,7 +61,7 @@ public class HeartBeatController {
 		log.debug("init() HeartBeatController: heartbeatEndpoint endpoint = {}", heartbeatEndpoint);
 	}
 	
-    @Scheduled(fixedRate = 25000)
+    @Scheduled(fixedRateString = "${heartbeatPeriod}")
     public void HeartBeat() {
         RestTemplate restTemplate = new RestTemplate();
 
