@@ -32,7 +32,7 @@ services:
       spring_data_mongodb_host: mongodb
       spring_data_mongodb_port: 27017
       spring_data_mongodb_database: orders
-      spring_kafka_bootstrap-servers: "kafka:9092"
+      spring_kafka_bootstrap-servers: "${BOOTSTRAP_SERVERS}"
       kafkaMainTopic: orders
       kafkaNotificationTopic: notifications
       kafkaInvoicingTopic: invoicing
